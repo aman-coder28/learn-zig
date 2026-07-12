@@ -39,8 +39,8 @@ fn calc(
 ) void {
     switch (opr) {
         '+' => calc_print(first, opr, second, first + second),
-        '-' => calc_print(first, opr, second, first + second),
-        'x' => calc_print(first, opr, second, first + second),
+        '-' => calc_print(first, opr, second, first - second),
+        'x' => calc_print(first, opr, second, first * second),
         '/' => calc_print(first, opr, second, divide(first, second) catch |err| switch (err) {
             error.NoDivisionByZero => 0.0,
             error.XCantBeZero => 1.0,
