@@ -8,7 +8,7 @@ pub fn main(input: std.process.Init) !void {
     const first = readline_to_float(input, &fnum_buf, "Enter the first Number: ") catch 0;
 
     var opr_buf: [1024]u8 = undefined;
-    const opr = readline(input, &opr_buf, "Enter an Operator: ") catch "";
+    const opr = readline(input, &opr_buf, "Enter an Operator: ") catch " ";
 
     var snum_buf: [1024]u8 = undefined;
     const second = readline_to_float(input, &snum_buf, "Enter the second Number: ") catch 0;
