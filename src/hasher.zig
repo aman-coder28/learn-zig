@@ -24,6 +24,7 @@ pub fn encrypt(allocator: std.mem.Allocator, plaintext: []const u8, key: [32]u8,
 
     return out;
 }
+
 pub fn decrypt(allocator: std.mem.Allocator, ciphertext_with_tag: []const u8, key: [32]u8, nonce: [12]u8) ![]u8 {
     const Aes256Gcm = std.crypto.aead.aes_gcm.Aes256Gcm;
 
