@@ -3,14 +3,15 @@ const divide = @import("root.zig").divide;
 const print = std.debug.print;
 
 pub fn calc(input: std.process.Init) void {
-    var fnum_buf: [1024]u8 = undefined;
-    const first = readline_to_float(input, &fnum_buf, "Enter the first Number: ") catch 0;
+    var buf: [64]u8 = undefined;
+
+    const first = readline_to_float(input, &buf, "Enter the first Number: ") catch 0;
 
     var opr_buf: [1024]u8 = undefined;
-    const opr = readline(input, &opr_buf, "Enter an Operator: ") catch " ";
+    const opr = readline(input, &buf, "Enter an Operator: ") catch " ";
 
     var snum_buf: [1024]u8 = undefined;
-    const second = readline_to_float(input, &snum_buf, "Enter the second Number: ") catch 0;
+    const second = readline_to_float(input, &buf, "Enter the second Number: ") catch 0;
 
     calculate(first, opr[0], second);
 }
