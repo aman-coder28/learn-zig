@@ -15,12 +15,11 @@ pub fn cap(word: []const u8, allocator: std.mem.Allocator) ![]u8 {
 pub fn capper(word: []const u8, allocator: std.mem.Allocator) ![]const u8 {
     var w = std.mem.splitScalar(u8, word, ' ');
     var parts: std.ArrayList([]const u8) = .empty;
-
     defer parts.deinit(allocator);
 
     while (w.next()) |part| {
         const c = try cap(part, allocator);
-        
+
         try parts.append(allocator, c);
     }
 
