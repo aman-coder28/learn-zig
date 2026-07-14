@@ -9,6 +9,26 @@ pub fn hash(word: []const u8, key: []const u8) ![32]u8 {
     return out;
 }
 
+pub fn encrypt_aes_simple(word: *const [16]u8, key: [32]u8, nonce: [12]u8) ![]u8 {
+    const Aes256Gcm = std.crypto.aead.aes_gcm.Aes256Gcm;
+
+    var out: [word.len]u8 = undefined;
+    var tag: [Aes256Gcm.tag_length]u8 = undefined;
+
+    Aes256Gcm.encrypt(&out, &tag, word, "", nonce, key);
+
+    return out[0..];
+}
+
+pub fn decrypt_aes_simple(encrypted: *const [16]u8, key: [32]u8) ![16]u8 {
+    var out: [16]u8 = undefined;
+
+    var ctx = std.crypto.core.aes.Aes256.initDec(key);
+    ctx.decrypt(out[0..], encrypted);
+
+    return out;
+}
+
 pub fn encrypt(allocator: std.mem.Allocator, plaintext: []const u8, key: [32]u8, nonce: [12]u8) ![]u8 {
     const Aes256Gcm = std.crypto.aead.aes_gcm.Aes256Gcm;
 
