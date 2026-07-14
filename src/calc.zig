@@ -7,13 +7,12 @@ pub fn calc(input: std.process.Init) void {
 
     const first = readline_to_float(input, &buf, "Enter the first Number: ") catch 0;
 
-    var opr_buf: [1024]u8 = undefined;
-    const opr = readline(input, &buf, "Enter an Operator: ") catch " ";
+    const opr_line = readline(input, &buf, "Enter an Operator: ") catch " ";
+    const opr: u8 = if (opr_line.len > 0) opr_line[0] else ' ';
 
-    var snum_buf: [1024]u8 = undefined;
     const second = readline_to_float(input, &buf, "Enter the second Number: ") catch 0;
 
-    calculate(first, opr[0], second);
+    calculate(first, opr, second);
 }
 
 fn calculate(
@@ -29,12 +28,12 @@ fn calculate(
             error.NoDivisionByZero => 0.0,
             error.XCantBeZero => 1.0,
         }),
-        else => print("\n please enter a valid operator (+, -, x, /).", .{}),
+        else => print("\n please enter a valid operator (+, -, x, /). \n", .{}),
     }
 }
 
 fn calc_print(first: f32, opr: u8, second: f32, res: f32) void {
-    print("\n{d} {c} {d} = {d}", .{ first, opr, second, res });
+    print("\n{d} {c} {d} = {d} \n", .{ first, opr, second, res });
 }
 
 fn readline(init: std.process.Init, buf: []u8, text: []const u8) ![]const u8 {
