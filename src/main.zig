@@ -28,6 +28,4 @@ pub fn main() !void {
         @constCast(key).*,
         @constCast("8af80924f4ab").*,
     )});
-
-    // print("{s}", .{try cap.capper(text, allocator)});
 }
