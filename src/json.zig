@@ -2,12 +2,13 @@ const std = @import("std");
 
 pub const Info = struct { data: []const u8 };
 
-pub fn parse_info(alloc: std.mem.Allocator, init: std.process.Init) !Info {
+pub fn parse_info(alloc: std.mem.Allocator, init: std.process.Init) !std.json.Parsed(Info) {
     const file = try std.Io.Dir.cwd().readFileAlloc(init.io, "./.env.local", alloc, .unlimited);
 
-    const parsed = try std.json.parseFromSlice(Info, alloc, file, .{
-        .ignore_unknown_fields = true,
-    });
+    defer alloc.free(file);
 
-    return parsed.value;
+    return try std.json.parseFromSlice(Info, alloc, file, .{
+        .ignore_unknown_fields = true,
+        .allocate = .alloc_always,
+    });
 }

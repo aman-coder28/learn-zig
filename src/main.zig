@@ -43,5 +43,5 @@ pub fn main(init: std.process.Init) !void {
         @constCast("8af80924f4ab").*,
     );
 
-    print("{s}", .{data});
+    defer print("{s}", .{data});
 }

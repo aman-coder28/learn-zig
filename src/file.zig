@@ -38,11 +38,16 @@ pub fn write_data(alloc: std.mem.Allocator, init: std.process.Init, key: [32]u8,
 pub fn read_data(alloc: std.mem.Allocator, init: std.process.Init, key: [32]u8, nonce: [12]u8) ![]const u8 {
     const info = try json.parse_info(alloc, init);
 
-    std.debug.print("{s} \n", .{info.data});
+    defer info.deinit();
 
-    var buffer: [64]u8 = undefined;
+    std.debug.print("{s} \n", .{info.value.data});
 
-    const bytes = try std.fmt.hexToBytes(&buffer, info.data);
+    const raw_len = info.value.data.len / 2;
+
+    const buffer = try alloc.alloc(u8, raw_len);
+    defer alloc.free(buffer);
+
+    const bytes = try std.fmt.hexToBytes(buffer, info.value.data);
 
     return try hasher.decrypt(alloc, bytes, key, nonce);
 }
