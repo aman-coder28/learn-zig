@@ -2,8 +2,8 @@ const std = @import("std");
 
 pub const Info = struct { data: []const u8 };
 
-pub fn parse_info(alloc: std.mem.Allocator, init: std.process.Init) !std.json.Parsed(Info) {
-    const file = try std.Io.Dir.cwd().readFileAlloc(init.io, "./.env.local", alloc, .unlimited);
+pub fn parse_info(alloc: std.mem.Allocator, init: std.Io) !std.json.Parsed(Info) {
+    const file = try std.Io.Dir.cwd().readFileAlloc(init, "./.env.local", alloc, .unlimited);
 
     defer alloc.free(file);
 

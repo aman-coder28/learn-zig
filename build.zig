@@ -4,8 +4,13 @@ pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
+    const args_dep = b.dependency("args", .{
+        .target = target,
+        .optimize = optimize,
+    });
+
     const mod = b.addModule("zig", .{
-        .root_source_file = b.path("src/root.zig"),
+        .root_source_file = b.path("src/tests.zig"),
         .target = target,
     });
 
@@ -23,6 +28,7 @@ pub fn build(b: *std.Build) void {
         }),
     });
 
+    exe.root_module.addImport("args", args_dep.module("args"));
     b.installArtifact(exe);
 
     const run_step = b.step("run", "Run the app");

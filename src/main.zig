@@ -1,8 +1,4 @@
 const std = @import("std");
-const cap = @import("cap.zig");
-const hasher = @import("hasher.zig");
-const file = @import("file.zig");
-const print = std.debug.print;
 const heap = std.heap;
 
 pub fn main(init: std.process.Init) !void {
@@ -13,39 +9,14 @@ pub fn main(init: std.process.Init) !void {
 
     const allocator = gpa.allocator();
 
-    // _ = try file.write_data(
-    //     allocator,
-    //     init,
-    //     @constCast(key).*,
-    //     @constCast("8af80924f4ab").*,
-    // );
+    var args_iter = try init.minimal.args.iterateAllocator(allocator);
+    defer args_iter.deinit();
 
-    // const data = try file.read_data(
-    //     allocator,
-    //     init,
-    //     @constCast(key).*,
-    //     @constCast("8af80924f4ab").*,
-    // );
+    const remaining = args_iter.inner.remaining;
 
-    // defer allocator.free(data);
-
-    const encrypted = try hasher.encryptWithPassword(
-        allocator,
-        init,
-        "text",
-        "password",
-    );
-
-    defer allocator.free(encrypted);
-
-    const decrypted = try hasher.decryptWithPassword(
-        allocator,
-        init,
-        encrypted,
-        "password",
-    );
-
-    defer allocator.free(decrypted);
-
-    print("{x} \n{s} \n", .{ encrypted, decrypted });
+    if (remaining.len >= 2) {
+        std.debug.print("{s}", .{remaining[1]});
+    } else {
+        std.debug.print("{s}", .{remaining[0]});
+    }
 }

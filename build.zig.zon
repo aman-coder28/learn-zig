@@ -3,6 +3,11 @@
     .version = "0.0.0",
     .fingerprint = 0xc1ce10818bd89104,
     .minimum_zig_version = "0.16.0",
-    .dependencies = .{},
+    .dependencies = .{
+        .args = .{
+            .url = "https://github.com/muhammad-fiaz/args.zig/archive/refs/tags/0.0.7.tar.gz",
+            .hash = "args-0.0.7-8hzgbvPiCAAcEM4R90pCppGhHBKi0Uiw90tbGvipjVfc",
+        },
+    },
     .paths = .{ "build.zig", "build.zig.zon", "src" },
 }

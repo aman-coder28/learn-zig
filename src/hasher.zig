@@ -3,12 +3,12 @@ const print = std.debug.print;
 
 pub fn encryptWithPassword(
     allocator: std.mem.Allocator,
-    init: std.process.Init,
+    init: std.Io,
     plaintext: []const u8,
     password: []const u8,
 ) ![]u8 {
     var salt: [16]u8 = undefined;
-    try std.Io.randomSecure(init.io, &salt);
+    try std.Io.randomSecure(init, &salt);
 
     var key: [32]u8 = undefined;
     try std.crypto.pwhash.argon2.kdf(
@@ -18,7 +18,7 @@ pub fn encryptWithPassword(
         &salt,
         std.crypto.pwhash.argon2.Params.owasp_2id,
         .argon2id,
-        init.io,
+        init,
     );
 
     const encrypted = try encrypt(allocator, init, plaintext, key);
@@ -33,7 +33,7 @@ pub fn encryptWithPassword(
 
 pub fn decryptWithPassword(
     allocator: std.mem.Allocator,
-    init: std.process.Init,
+    init: std.Io,
     blob: []const u8,
     password: []const u8,
 ) ![]u8 {
@@ -48,15 +48,15 @@ pub fn decryptWithPassword(
         salt,
         std.crypto.pwhash.argon2.Params.owasp_2id,
         .argon2id,
-        init.io,
+        init,
     );
 
     return try decrypt(allocator, blob[16..], key);
 }
 
-pub fn encrypt(allocator: std.mem.Allocator, init: std.process.Init, plaintext: []const u8, key: [32]u8) ![]u8 {
+pub fn encrypt(allocator: std.mem.Allocator, init: std.Io, plaintext: []const u8, key: [32]u8) ![]u8 {
     var nonce: [12]u8 = undefined;
-    try std.Io.randomSecure(init.io, &nonce);
+    try std.Io.randomSecure(init, &nonce);
 
     const Aes256Gcm = std.crypto.aead.aes_gcm.Aes256Gcm;
 

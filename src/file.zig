@@ -2,8 +2,8 @@ const std = @import("std");
 const hasher = @import("./hasher.zig");
 const json = @import("./json.zig");
 
-pub fn write_data(alloc: std.mem.Allocator, init: std.process.Init, key: [32]u8, nonce: [12]u8) !void {
-    const file = try std.Io.Dir.cwd().readFileAlloc(init.io, ".env", alloc, .unlimited);
+pub fn write_data(alloc: std.mem.Allocator, init: std.Io, key: [32]u8, nonce: [12]u8) !void {
+    const file = try std.Io.Dir.cwd().readFileAlloc(init, ".env", alloc, .unlimited);
 
     defer alloc.free(file);
 
@@ -28,14 +28,14 @@ pub fn write_data(alloc: std.mem.Allocator, init: std.process.Init, key: [32]u8,
 
     try stringifier.write(data);
 
-    const new_file = try std.Io.Dir.cwd().createFile(init.io, "./.env.local", .{ .read = true });
+    const new_file = try std.Io.Dir.cwd().createFile(init, "./.env.local", .{ .read = true });
 
-    defer new_file.close(init.io);
+    defer new_file.close(init);
 
-    _ = try new_file.writeStreaming(init.io, "", &.{out.writer.buffered()}, 1);
+    _ = try new_file.writeStreaming(init, "", &.{out.writer.buffered()}, 1);
 }
 
-pub fn read_data(alloc: std.mem.Allocator, init: std.process.Init, key: [32]u8, nonce: [12]u8) ![]const u8 {
+pub fn read_data(alloc: std.mem.Allocator, init: std.Io, key: [32]u8, nonce: [12]u8) ![]const u8 {
     const info = try json.parse_info(alloc, init);
 
     defer info.deinit();
