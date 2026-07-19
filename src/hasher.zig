@@ -1,40 +1,57 @@
 const std = @import("std");
 const print = std.debug.print;
 
-pub fn hashPassword(allocator: std.mem.Allocator, init: std.process.Init, password: []const u8, out_buf: []u8) ![]const u8 {
-    return std.crypto.pwhash.argon2.strHash(
+pub fn encryptWithPassword(
+    allocator: std.mem.Allocator,
+    init: std.process.Init,
+    plaintext: []const u8,
+    password: []const u8,
+) ![]u8 {
+    var salt: [16]u8 = undefined;
+    try std.Io.randomSecure(init.io, &salt);
+
+    var key: [32]u8 = undefined;
+    try std.crypto.pwhash.argon2.kdf(
+        allocator,
+        &key,
         password,
-        .{
-            .allocator = allocator,
-            .params = std.crypto.pwhash.argon2.Params.owasp_2id,
-        },
-        out_buf,
+        &salt,
+        std.crypto.pwhash.argon2.Params.owasp_2id,
+        .argon2id,
         init.io,
     );
-}
 
-pub fn verifyPassword(allocator: std.mem.Allocator, stored_hash: []const u8, attempt: []const u8) !bool {
-    _ = std.crypto.pwhash.argon2.strVerify(stored_hash, attempt, .{ .allocator = allocator }) catch return false;
+    const encrypted = try encrypt(allocator, init, plaintext, key);
+    defer allocator.free(encrypted);
 
-    return true;
-}
-
-pub fn encrypt_aes_simple(word: *const [16]u8, key: [32]u8) ![16]u8 {
-    var out: [16]u8 = undefined;
-
-    var ctx = std.crypto.core.aes.Aes256.initEnc(key);
-    ctx.encrypt(out[0..], word);
+    const out = try allocator.alloc(u8, salt.len + encrypted.len);
+    @memcpy(out[0..salt.len], &salt);
+    @memcpy(out[salt.len..], encrypted);
 
     return out;
 }
 
-pub fn decrypt_aes_simple(encrypted: *const [16]u8, key: [32]u8) ![16]u8 {
-    var out: [16]u8 = undefined;
+pub fn decryptWithPassword(
+    allocator: std.mem.Allocator,
+    init: std.process.Init,
+    blob: []const u8,
+    password: []const u8,
+) ![]u8 {
+    if (blob.len < 16) return error.InvalidInput;
+    const salt = blob[0..16];
 
-    var ctx = std.crypto.core.aes.Aes256.initDec(key);
-    ctx.decrypt(out[0..], encrypted);
+    var key: [32]u8 = undefined;
+    try std.crypto.pwhash.argon2.kdf(
+        allocator,
+        &key,
+        password,
+        salt,
+        std.crypto.pwhash.argon2.Params.owasp_2id,
+        .argon2id,
+        init.io,
+    );
 
-    return out;
+    return try decrypt(allocator, blob[16..], key);
 }
 
 pub fn encrypt(allocator: std.mem.Allocator, init: std.process.Init, plaintext: []const u8, key: [32]u8) ![]u8 {
@@ -48,7 +65,7 @@ pub fn encrypt(allocator: std.mem.Allocator, init: std.process.Init, plaintext: 
 
     @memcpy(out[0..Aes256Gcm.nonce_length], &nonce);
 
-    const ciphertext = out[0..plaintext.len];
+    const ciphertext = out[Aes256Gcm.nonce_length .. Aes256Gcm.nonce_length + plaintext.len];
     var tag: [Aes256Gcm.tag_length]u8 = undefined;
 
     Aes256Gcm.encrypt(ciphertext, &tag, plaintext, &[_]u8{}, nonce, key);

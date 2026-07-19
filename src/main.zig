@@ -13,24 +13,6 @@ pub fn main(init: std.process.Init) !void {
 
     const allocator = gpa.allocator();
 
-    const key = "aa55b3794e674ccf8a3758021c3d7284";
-
-    // const encrypted = try hasher.encrypt(
-    //     allocator,
-    //     text,
-    //     @constCast(key).*,
-    //     @constCast("8af80924f4ab").*,
-    // );
-
-    // print("{x} \n", .{encrypted});
-
-    // print("{s} \n", .{try hasher.decrypt(
-    //     allocator,
-    //     encrypted,
-    //     @constCast(key).*,
-    //     @constCast("8af80924f4ab").*,
-    // )});
-
     // _ = try file.write_data(
     //     allocator,
     //     init,
@@ -47,22 +29,23 @@ pub fn main(init: std.process.Init) !void {
 
     // defer allocator.free(data);
 
-    const encrypted = try hasher.encrypt(
+    const encrypted = try hasher.encryptWithPassword(
         allocator,
         init,
+        "text",
         "password",
-        @constCast(key).*,
     );
 
     defer allocator.free(encrypted);
 
-    const decrypted = try hasher.decrypt(
+    const decrypted = try hasher.decryptWithPassword(
         allocator,
+        init,
         encrypted,
-        @constCast(key).*,
+        "password",
     );
 
     defer allocator.free(decrypted);
 
-    print("{s} \n", .{decrypted});
+    print("{x} \n{s} \n", .{ encrypted, decrypted });
 }
