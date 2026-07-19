@@ -38,14 +38,31 @@ pub fn main(init: std.process.Init) !void {
     //     @constCast("8af80924f4ab").*,
     // );
 
-    const data = try file.read_data(
+    // const data = try file.read_data(
+    //     allocator,
+    //     init,
+    //     @constCast(key).*,
+    //     @constCast("8af80924f4ab").*,
+    // );
+
+    // defer allocator.free(data);
+
+    const encrypted = try hasher.encrypt(
         allocator,
         init,
+        "password",
         @constCast(key).*,
-        @constCast("8af80924f4ab").*,
     );
 
-    defer allocator.free(data);
+    defer allocator.free(encrypted);
 
-    print("{s}", .{data});
+    const decrypted = try hasher.decrypt(
+        allocator,
+        encrypted,
+        @constCast(key).*,
+    );
+
+    defer allocator.free(decrypted);
+
+    print("{s} \n", .{decrypted});
 }
