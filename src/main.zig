@@ -6,8 +6,10 @@ const print = std.debug.print;
 const heap = std.heap;
 
 pub fn main(init: std.process.Init) !void {
-    var gpa = heap.ArenaAllocator.init(heap.page_allocator);
-    defer gpa.deinit();
+    var gpa: std.heap.DebugAllocator(.{}) = .init;
+    defer {
+        _ = gpa.deinit();
+    }
 
     const allocator = gpa.allocator();
 
@@ -43,5 +45,7 @@ pub fn main(init: std.process.Init) !void {
         @constCast("8af80924f4ab").*,
     );
 
-    defer print("{s}", .{data});
+    defer allocator.free(data);
+
+    print("{s}", .{data});
 }
