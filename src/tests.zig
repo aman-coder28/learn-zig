@@ -3,7 +3,7 @@ const hasher = @import("./hasher.zig");
 const testing = std.testing;
 const io = std.testing.io;
 
-test "basic divide functionality" {
+test "encryption and decryption" {
     const encrypted = try hasher.encryptWithPassword(
         testing.allocator,
         io,
@@ -17,6 +17,7 @@ test "basic divide functionality" {
         encrypted,
         "password",
     );
+
     defer {
         _ = testing.allocator.free(encrypted);
         _ = testing.allocator.free(decrypted);

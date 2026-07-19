@@ -6,17 +6,24 @@ pub fn main(init: std.process.Init) !void {
     defer {
         _ = gpa.deinit();
     }
-
     const allocator = gpa.allocator();
 
+    const file = try get_args(allocator, init);
+
+    // defer allocator.free(file);
+
+    std.debug.print("{s}", .{file});
+}
+
+fn get_args(allocator: std.mem.Allocator, init: std.process.Init) ![]const u8 {
     var args_iter = try init.minimal.args.iterateAllocator(allocator);
     defer args_iter.deinit();
 
     const remaining = args_iter.inner.remaining;
 
     if (remaining.len >= 2) {
-        std.debug.print("{s}", .{remaining[1]});
+        return std.mem.span(remaining[1]);
     } else {
-        std.debug.print("{s}", .{remaining[0]});
+        return ".env";
     }
 }
