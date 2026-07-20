@@ -7,11 +7,11 @@ pub fn read_file(alloc: std.mem.Allocator, io: std.Io, file_name: []const u8) ![
 }
 
 pub fn isJson(allocator: std.mem.Allocator, text: []const u8) !bool {
-    const result = try std.json.parseFromSlice(std.json.Value, allocator, text, .{});
+    const is_json = try json.parse_info(allocator, text);
 
-    defer result.deinit();
+    defer is_json.deinit();
 
-    return result.value.object.entries.len > 0;
+    return is_json.value.data.len > 0;
 }
 
 pub fn write_data(alloc: std.mem.Allocator, init: std.Io, password: []const u8, file_name: []const u8) !void {
@@ -48,7 +48,10 @@ pub fn write_data(alloc: std.mem.Allocator, init: std.Io, password: []const u8, 
 }
 
 pub fn read_data(alloc: std.mem.Allocator, init: std.Io, password: []const u8, file_name: []const u8) ![]const u8 {
-    const info = try json.parse_info(alloc, init, file_name);
+    const content = try read_file(alloc, init, file_name);
+    defer alloc.free(content);
+
+    const info = try json.parse_info(alloc, content);
 
     defer info.deinit();
 
