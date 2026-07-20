@@ -1,4 +1,5 @@
 const std = @import("std");
+const file = @import("./file.zig");
 const heap = std.heap;
 
 pub fn main(init: std.process.Init) !void {
@@ -8,11 +9,23 @@ pub fn main(init: std.process.Init) !void {
     }
     const allocator = gpa.allocator();
 
-    const file = try get_args(allocator, init);
+    const file_name = try get_args(allocator, init);
 
-    // defer allocator.free(file);
+    const content = try file.read_file(allocator, init.io, file_name);
+    defer allocator.free(content);
 
-    std.debug.print("{s}", .{file});
+    const is_json = file.isJson(allocator, content) catch false;
+
+    if (is_json) {
+        const result = try file.read_data(allocator, init.io, "password", file_name);
+        defer allocator.free(result);
+
+        std.debug.print("{s} decrypted data is {s}", .{ file_name, result });
+    } else {
+        std.debug.print("{s} data will be encrypted now.", .{file_name});
+
+        _ = try file.write_data(allocator, init.io, "password", file_name);
+    }
 }
 
 fn get_args(allocator: std.mem.Allocator, init: std.process.Init) ![]const u8 {
