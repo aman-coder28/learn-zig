@@ -20,7 +20,12 @@ pub fn main(init: std.process.Init) !void {
         const result = try file.read_data(allocator, init.io, "password", file_name);
         defer allocator.free(result);
 
-        std.debug.print("{s} decrypted data is {s}", .{ file_name, result });
+        var stdout_buf: [512]u8 = undefined;
+        var stdout_writer = std.Io.File.stdout().writer(init.io, &stdout_buf);
+        const stdout = &stdout_writer.interface;
+
+        try stdout.writeAll(result);
+        try stdout.flush();
     } else {
         std.debug.print("{s} data will be encrypted now.", .{file_name});
 
