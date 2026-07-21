@@ -15,7 +15,7 @@ pub fn isJson(allocator: std.mem.Allocator, text: []const u8) !bool {
 }
 
 pub fn write_data(alloc: std.mem.Allocator, init: std.Io, password: []const u8, file_name: []const u8) !void {
-    const file = try std.Io.Dir.cwd().readFileAlloc(init, file_name, alloc, .unlimited);
+    const file = try read_file(alloc, init, file_name);
 
     defer alloc.free(file);
 
